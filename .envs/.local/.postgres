@@ -2,6 +2,6 @@
 # ------------------------------------------------------------------------------
 POSTGRES_HOST=postgres
 POSTGRES_PORT=5432
-POSTGRES_DB=apps
-POSTGRES_USER=WonflCLhVWzyGGDgnZypqDPjjnwKtWPt
-POSTGRES_PASSWORD=Tj51eArJTAuxajDdD5vGJPMtE2aot3BYRdnFb68uo0qlP916E3tEyvqYcmXSlLPA
+POSTGRES_DB=sop_metal
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=postgres
