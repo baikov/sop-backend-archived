@@ -29,14 +29,15 @@ services:
       - "traefik.enable=true"
       - "traefik.http.routers.django.priority=10"
       # Asociates router with your specific domain or subdomain and websecure (https)
-      - "traefik.http.routers.django.rule=Host(`${DOMAIN}`) || Host(`www.${DOMAIN}`)"
+      # - "traefik.http.routers.django.rule=Host(`${DOMAIN}`) || Host(`www.${DOMAIN}`)"
+      - "traefik.http.routers.django.rule=(Host(`${DOMAIN}`) || Host(`www.${DOMAIN}`)) && (PathPrefix(`/api`) || PathPrefix(`/${DJANGO_ADMIN_URL}`))"
       - "traefik.http.routers.django.entrypoints=websecure"
       # Enables tls
       - "traefik.http.routers.django.tls=true"
       # Asociation with resolver (see static.yml file)
       - "traefik.http.routers.django.tls.certresolver=letsencrypt"
       # add security middleware
-      - "traefik.http.routers.django.middlewares=custom-redirect@file,security-headers,gzip"
+      - "traefik.http.routers.django.middlewares=security-headers,compression"
       # Set default options (see dynamic.yaml for this)
       - "traefik.http.routers.django.tls.options=default"
       # loadbalancer
@@ -140,7 +141,7 @@ services:
       - "traefik.http.routers.nginx.entrypoints=websecure"
       - "traefik.http.routers.nginx.tls=true"
       - "traefik.http.routers.nginx.tls.certresolver=letsencrypt"
-      - "traefik.http.routers.nginx.middlewares=custom-redirect@file,security-headers,gzip"
+      - "traefik.http.routers.nginx.middlewares=security-headers,compression"
       - "traefik.http.routers.nginx.tls.options=default"
       - "traefik.http.services.nginx.loadbalancer.server.port=80"
 
