@@ -30,7 +30,7 @@ services:
       - "traefik.http.routers.django.priority=10"
       # Asociates router with your specific domain or subdomain and websecure (https)
       # - "traefik.http.routers.django.rule=Host(`${DOMAIN}`) || Host(`www.${DOMAIN}`)"
-      - "traefik.http.routers.django.rule=(Host(`${DOMAIN}`) || Host(`www.${DOMAIN}`)) && (PathPrefix(`/api`) || PathPrefix(`/${DJANGO_ADMIN_URL}` || PathPrefix(`/static}`))"
+      - "traefik.http.routers.django.rule=(Host(`${DOMAIN}`) || Host(`www.${DOMAIN}`)) && (PathPrefix(`/api`) || PathPrefix(`/${DJANGO_ADMIN_URL}`) || PathPrefix(`/static}`))"
       - "traefik.http.routers.django.entrypoints=websecure"
       # Enables tls
       - "traefik.http.routers.django.tls=true"
