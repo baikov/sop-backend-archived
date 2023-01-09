@@ -39,7 +39,8 @@ SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SECURE = True
 # https://docs.djangoproject.com/en/dev/topics/security/#ssl-https
 # https://docs.djangoproject.com/en/dev/ref/settings/#secure-hsts-seconds
-# TODO: set this to 60 seconds first and then to 518400 once you prove the former works
+# TODO: set this to 60 seconds first and then to 518400 once you prove the
+# former works
 SECURE_HSTS_SECONDS = 60
 # https://docs.djangoproject.com/en/dev/ref/settings/#secure-hsts-include-subdomains
 SECURE_HSTS_INCLUDE_SUBDOMAINS = env.bool(
@@ -135,8 +136,9 @@ LOGGING = {
 }
 
 # django-rest-framework
-# -------------------------------------------------------------------------------
-# Tools that generate code samples can use SERVERS to point to the correct domain
+# ------------------------------------------------------------------------------
+# Tools that generate code samples can use SERVERS to point to the correct
+# domain
 SPECTACULAR_SETTINGS["SERVERS"] = [  # noqa F405
     {"url": "https://soptorg.ru", "description": "Production server"}
 ]
