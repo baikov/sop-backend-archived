@@ -1,4 +1,5 @@
 from rest_framework import status
+from rest_framework.permissions import AllowAny, IsAdminUser
 from rest_framework.response import Response
 from rest_framework.viewsets import ViewSet
 
@@ -9,6 +10,17 @@ from apps.utils.custom import get_object_or_None
 
 
 class ProductViewSet(ViewSet):
+    def get_permissions(self):
+        if self.action in ("list", "retrieve"):
+            permission_classes = [
+                AllowAny,
+            ]
+        else:
+            permission_classes = [
+                IsAdminUser,
+            ]
+        return [permission() for permission in permission_classes]
+
     def list(self, request):
         filters_serializer = ProductFilterSerializer(data=request.query_params)
         filters_serializer.is_valid(raise_exception=True)
