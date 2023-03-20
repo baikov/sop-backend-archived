@@ -75,6 +75,7 @@ THIRD_PARTY_APPS = [
     "corsheaders",
     "drf_spectacular",
     "django_filters",
+    "treebeard",
 ]
 
 LOCAL_APPS = [
@@ -186,6 +187,7 @@ TEMPLATES = [
                 "django.template.context_processors.tz",
                 "django.contrib.messages.context_processors.messages",
                 "apps.users.context_processors.allauth_settings",
+                # "django.core.context_processors.request",
             ],
         },
     }
@@ -328,6 +330,8 @@ CORS_URLS_REGEX = r"^/api/.*$"
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
     "http://127.0.0.1:3000",
+    "http://localhost:3004",
+    "http://127.0.0.1:3004",
 ]
 CORS_ALLOW_METHODS = [
     "GET",
