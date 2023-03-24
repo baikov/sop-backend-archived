@@ -22,7 +22,7 @@ def get_root_categories() -> QuerySet:
     return qs
 
 
-def get_children_categories(slug: str):
+def get_children_categories(slug: str) -> QuerySet:
     category = get_object_or_None(Category, slug=slug)
     if category is None:
         raise NotFound(f"Категория slug={slug} не существует")
@@ -30,7 +30,7 @@ def get_children_categories(slug: str):
     return category.get_descendants().filter(is_published=True)
 
 
-def get_category_product_list(slug: str, filters: dict = None):
+def get_category_product_list(slug: str, filters: dict = None) -> QuerySet:
     filters = filters or {}
 
     category = get_object_or_None(Category, slug=slug)
