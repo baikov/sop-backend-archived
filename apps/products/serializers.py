@@ -1,6 +1,5 @@
 import math
 
-from loguru import logger
 from rest_framework import serializers
 
 from apps.products.models import NavigationItem
@@ -143,7 +142,6 @@ class NavTreeSerializer(serializers.Serializer):
     props = serializers.SerializerMethodField()
 
     def get_item(self, obj):
-        logger.debug("obj: {}", obj)
         return NavigationItemOutputSerializer(obj[0]).data
 
     def get_props(self, obj):
