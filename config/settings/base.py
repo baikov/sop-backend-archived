@@ -75,6 +75,7 @@ THIRD_PARTY_APPS = [
     "corsheaders",
     "drf_spectacular",
     "django_filters",
+    "django_extensions",
     "treebeard",
 ]
 

@@ -32,11 +32,11 @@ def create_breadcrumbs(
         return [last_item]
 
     breadcrumbs = []
-    for anccestor in obj.get_ancestors():
+    for ancestor in obj.get_ancestors():
         item = {
-            "level": anccestor.depth,
-            "name": anccestor.name,
-            "href": f"{root_path}/{anccestor.slug}",
+            "level": ancestor.depth,
+            "name": ancestor.name,
+            "href": f"{root_path}/{ancestor.slug}",
             "disabled": False,
         }
         breadcrumbs.append(item)
