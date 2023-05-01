@@ -7,8 +7,10 @@ from apps.products.models import (
     Navigation,
     NavigationItem,
     Product,
+    ProductCategories,
     ProductProperty,
     ProductPropertyValue,
+    PropertyValue,
 )
 
 
@@ -19,7 +21,7 @@ class PropertyInline(admin.TabularInline):
 
 class CategoryAdmin(TreeAdmin):
     prepopulated_fields = {"slug": ("name",)}
-    list_display = ("name", "slug", "is_published")
+    list_display = ("name", "slug", "is_published", "is_parsing_successful", "id")
     list_editable = ("is_published",)
     # list_filter = ["region"]
     inlines = [PropertyInline]
@@ -35,29 +37,50 @@ class ProductPropertyInline(admin.TabularInline):
     raw_id_fields = ("property",)
 
 
+class ProductCategoriesInline(admin.TabularInline):
+    model = ProductCategories
+    extra = 2
+    fk_name = "product"
+    raw_id_fields = ("category",)
+
+
 class ProductAdmin(admin.ModelAdmin):
     prepopulated_fields = {"slug": ("name",)}
     list_display = (
         "name",
-        "category",
+        # "category",
         "slug",
         "ton_price",
         "unit_price",
         "meter_price",
-        "cat_price_coefficient",
+        # "cat_price_coefficient",
         "id",
+        "in_stock",
         "is_published",
+        # "prop_values_list",
     )
+    # exclude = ["prop_values"]
     list_editable = ("is_published", "ton_price")
-    list_filter = ["category"]
-    inlines = [ProductPropertyInline]
+    # list_filter = ["category"]
+    inlines = [ProductPropertyInline, ProductCategoriesInline]
+    # inlines = [ProductCategoriesInline, PropertyValueInline]
 
-    def cat_price_coefficient(self, obj):
-        # sign = "+" if obj.category.price_coefficient - 1 > 0 else ""
-        # return f"{sign}{int(obj.category.price_coefficient * 100 - 100)}%"
-        return obj.category.price_coefficient
+    # def cat_price_coefficient(self, obj):
+    #     # sign = "+" if obj.category.price_coefficient - 1 > 0 else ""
+    #     # return f"{sign}{int(obj.category.price_coefficient * 100 - 100)}%"
+    #     return obj.category.price_coefficient
 
-    cat_price_coefficient.short_description = "Коэфициент цены"
+    # cat_price_coefficient.short_description = "Коэфициент цены"
+
+    # def prop_values_list(self, obj):
+    #     return ", ".join([p.value for p in obj.prop_values.all()])
+
+    # prop_values_list.short_description = "Значения свойств"
+
+
+@admin.register(PropertyValue)
+class PropertyValueAdmin(admin.ModelAdmin):
+    list_display = ("property", "value")
 
 
 class ProductPropertyAdmin(admin.ModelAdmin):
