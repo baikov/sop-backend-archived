@@ -62,6 +62,7 @@ class ProductAdmin(admin.ModelAdmin):
     # exclude = ["prop_values"]
     list_editable = ("is_published", "ton_price")
     # list_filter = ["category"]
+    search_fields = ["name"]
     inlines = [ProductPropertyInline, ProductCategoriesInline]
     # inlines = [ProductCategoriesInline, PropertyValueInline]
 

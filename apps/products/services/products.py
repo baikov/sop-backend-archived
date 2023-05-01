@@ -21,9 +21,8 @@ def add_product_properties(product: Product) -> None:
     созданного Продукта на основе принадлежности к Категории
     """
     # TODO: исправить поле категории на categories
-    properties = product.category.product_properties.difference(
-        product.properties.all()
-    )
+    category = product.categories.filter(product_categories__is_primary=True).first()
+    properties = category.product_properties.difference(product.properties.all())
     for property in properties:
         product.properties_through.create(property=property)
 
@@ -33,9 +32,8 @@ def remove_redundant_product_properties(product: Product) -> None:
     Удаляет записи таблицы ProductPropertyValue (Свойство - Значение) для Продукта
     при смене Категории
     """
-    remove_properties = product.properties.difference(
-        product.category.product_properties.all()
-    )
+    category = product.categories.filter(product_categories__is_primary=True).first()
+    remove_properties = product.properties.difference(category.product_properties.all())
     product.properties_through.filter(
         property_id__in=Subquery(remove_properties.values("id"))
     ).delete()

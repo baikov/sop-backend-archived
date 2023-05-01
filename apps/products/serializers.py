@@ -68,13 +68,24 @@ class ProductListOutputSerializer(serializers.Serializer):
     properties = serializers.SerializerMethodField(read_only=True)
 
     def get_unit_price_with_coef(self, obj):
-        return math.ceil(obj.unit_price * obj.category.price_coefficient)
+        primary_category = obj.categories.filter(
+            product_categories__is_primary=True
+        ).first()
+        return math.ceil(obj.unit_price * primary_category.price_coefficient)
 
     def get_meter_price_with_coef(self, obj):
-        return math.ceil(obj.meter_price * obj.category.price_coefficient)
+        primary_category = obj.categories.filter(
+            product_categories__is_primary=True
+        ).first()
+        return math.ceil(obj.meter_price * primary_category.price_coefficient)
 
     def get_ton_price_with_coef(self, obj):
-        return (round(obj.ton_price * obj.category.price_coefficient) // 100 + 1) * 100
+        primary_category = obj.categories.filter(
+            product_categories__is_primary=True
+        ).first()
+        return (
+            round(obj.ton_price * primary_category.price_coefficient) // 100 + 1
+        ) * 100
 
     @extend_schema_field(ProductPropertySerializer(many=True))
     def get_properties(self, obj):
@@ -84,21 +95,25 @@ class ProductListOutputSerializer(serializers.Serializer):
 
 
 class ProductDetailOutputSerializer(ProductListOutputSerializer, SEOMixin):
-    category = serializers.CharField()
+    category = serializers.SerializerMethodField(read_only=True)
     description = serializers.CharField()
     breadcrumbs = serializers.SerializerMethodField(read_only=True)
     properties = ProductPropertySerializer(
         read_only=True, many=True, source="properties_through"
     )
 
+    def get_category(self, obj):
+        return obj.categories.filter(product_categories__is_primary=True).first().name
+
     def get_breadcrumbs(self, obj):
+        category = obj.categories.filter(product_categories__is_primary=True).first()
         last_item = {
-            "level": obj.category.depth + 1,
+            "level": category.depth + 1,
             "name": obj.name,
             "href": f"/product/{obj.slug}",
             "disabled": True,
         }
-        breadcrumbs = create_breadcrumbs(obj.category, disable_last=False)
+        breadcrumbs = create_breadcrumbs(category, disable_last=False)
         breadcrumbs.append(last_item)
         return breadcrumbs
 
