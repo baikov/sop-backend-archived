@@ -1,5 +1,6 @@
 import math
 
+from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
 from apps.products.models import NavigationItem
@@ -75,6 +76,7 @@ class ProductListOutputSerializer(serializers.Serializer):
     def get_ton_price_with_coef(self, obj):
         return (round(obj.ton_price * obj.category.price_coefficient) // 100 + 1) * 100
 
+    @extend_schema_field(ProductPropertySerializer(many=True))
     def get_properties(self, obj):
         return ProductPropertySerializer(
             obj.properties_through.filter(property__is_display_in_list=True), many=True

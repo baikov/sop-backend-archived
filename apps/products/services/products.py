@@ -20,6 +20,7 @@ def add_product_properties(product: Product) -> None:
     Создает записи таблицы ProductPropertyValue (Свойство - Значение) для вновь
     созданного Продукта на основе принадлежности к Категории
     """
+    # TODO: исправить поле категории на categories
     properties = product.category.product_properties.difference(
         product.properties.all()
     )

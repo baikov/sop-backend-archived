@@ -1,1 +1,4 @@
-unfixable = ["F401"]
+unfixable = ["F401", "F841"]
+
+[isort]
+known-first-party = ["apps", "config"]
