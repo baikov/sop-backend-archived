@@ -1,4 +1,3 @@
-# from django.db import transaction
 from django.db.models import Subquery
 from django.db.models.query import QuerySet
 
@@ -20,7 +19,7 @@ def add_product_properties(product: Product) -> None:
     Создает записи таблицы ProductPropertyValue (Свойство - Значение) для вновь
     созданного Продукта на основе принадлежности к Категории
     """
-    # TODO: исправить поле категории на categories
+    # TODO: проверить на корректность работы
     category = product.categories.filter(product_categories__is_primary=True).first()
     properties = category.product_properties.difference(product.properties.all())
     for property in properties:
@@ -32,6 +31,7 @@ def remove_redundant_product_properties(product: Product) -> None:
     Удаляет записи таблицы ProductPropertyValue (Свойство - Значение) для Продукта
     при смене Категории
     """
+    # TODO: проверить на корректность работы
     category = product.categories.filter(product_categories__is_primary=True).first()
     remove_properties = product.properties.difference(category.product_properties.all())
     product.properties_through.filter(
