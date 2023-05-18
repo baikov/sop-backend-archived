@@ -142,7 +142,7 @@ def parse_categories_task() -> list[dict[str, object]]:
 
 
 @shared_task(soft_time_limit=600)
-def parse_products_task():
+def parse_products_task(categories_ids: list[int]):
     # categories_id = Category.objects.values_list("id", flat=True)
     # tasks = [
     #     parse_category_products_task.s(category_id) for category_id in categories_id
@@ -160,9 +160,12 @@ def parse_products_task():
     categories_id = [
         cat.id
         for cat in Category.objects.filter(
-            Q(is_parsing_successful=False)
-            | Q(last_parsed_at__lt=timezone.now() - timedelta(days=1))
-            | Q(last_parsed_at__isnull=True)
+            Q(id__in=categories_ids)
+            & (
+                Q(is_parsing_successful=False)
+                | Q(last_parsed_at__lt=timezone.now() - timedelta(days=1))
+                | Q(last_parsed_at__isnull=True)
+            )
         )
         if cat.is_leaf()
     ]
@@ -241,7 +244,7 @@ def get_unique_products(soup: BeautifulSoup) -> dict[str, ParsedProduct]:
         price = _get_product_price(product)
 
         parsed_product = ParsedProduct(
-            name=name,
+            name=name.capitalize(),
             price=price,
             in_stock=in_stock,
             parse_url=parse_url,
@@ -405,7 +408,7 @@ def parse_category_products_task(category_id: int):
         if product_instance:
             product_instance.in_stock = product.in_stock
             product_instance.ton_price = product.price
-            product_instance.is_published = (True if product.in_stock else False,)
+            product_instance.is_published = True if product.in_stock else False
             exist_in_parsed_products.append(product_instance.id)
             # счетчик обновлений
             instances_update_count += 1
