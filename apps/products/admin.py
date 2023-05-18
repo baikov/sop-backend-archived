@@ -21,13 +21,24 @@ class PropertyInline(admin.TabularInline):
 
 class CategoryAdmin(TreeAdmin):
     prepopulated_fields = {"slug": ("name",)}
-    list_display = ("name", "slug", "is_published", "is_parsing_successful", "id")
+    list_display = (
+        "cat_name",
+        "slug",
+        "is_published",
+        "is_parsing_successful",
+        "id",
+    )
     list_editable = ("is_published",)
     # list_filter = ["region"]
     inlines = [PropertyInline]
-    search_fields = ["name"]
+    search_fields = ["parsed_name"]
     readonly_fields = ["updated_date", "created_date"]
     form = movenodeform_factory(Category)
+
+    def cat_name(self, obj):
+        return obj.name if obj.name else obj.parsed_name
+
+    cat_name.short_description = "Название категории"
 
 
 class ProductPropertyInline(admin.TabularInline):
@@ -61,7 +72,7 @@ class ProductAdmin(admin.ModelAdmin):
     )
     # exclude = ["prop_values"]
     list_editable = ("is_published", "ton_price")
-    # list_filter = ["category"]
+    list_filter = ["categories", "in_stock"]
     search_fields = ["name"]
     inlines = [ProductPropertyInline, ProductCategoriesInline]
     # inlines = [ProductCategoriesInline, PropertyValueInline]

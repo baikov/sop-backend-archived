@@ -24,6 +24,8 @@ def get_object_or_None(klass, *args, **kwargs):
 def create_breadcrumbs(
     obj: Model, root_path: str = "/catalog", disable_last: bool = True
 ) -> list[dict]:
+    if hasattr(obj, "parsed_name") and obj.name == "":
+        obj.name = obj.parsed_name
     last_item = {
         "level": obj.depth,
         "name": obj.name,
@@ -35,6 +37,8 @@ def create_breadcrumbs(
 
     breadcrumbs = []
     for ancestor in obj.get_ancestors():
+        if hasattr(ancestor, "parsed_name") and ancestor.name == "":
+            ancestor.name = ancestor.parsed_name
         item = {
             "level": ancestor.depth,
             "name": ancestor.name,

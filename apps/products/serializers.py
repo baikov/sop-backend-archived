@@ -66,6 +66,7 @@ class ProductListOutputSerializer(serializers.Serializer):
     ton_price_with_coef = serializers.SerializerMethodField(read_only=True)
     meter_price_with_coef = serializers.SerializerMethodField(read_only=True)
     properties = serializers.SerializerMethodField(read_only=True)
+    in_stock = serializers.BooleanField(read_only=True)
 
     def get_unit_price_with_coef(self, obj):
         primary_category = obj.categories.filter(
@@ -184,5 +185,7 @@ class CatalogLeftMenuSerializer(serializers.Serializer):
 
     def get_submenu(self, obj):
         return CatalogLeftMenuSerializer(
-            obj.get_descendants(), many=True, required=False  # obj.get_children()
+            obj.get_children().filter(is_published=True),
+            many=True,
+            required=False,  # get_descendants()
         ).data

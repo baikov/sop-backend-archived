@@ -161,7 +161,7 @@ class CategoryViewSet(RetrieveModelMixin, ListModelMixin, GenericViewSet):
     permission_classes = [AllowAny]
 
     class Pagination(LimitOffsetPagination):
-        default_limit = 20
+        default_limit = 100
 
     # filter_backends = [DjangoFilterBackend, filters.OrderingFilter,
     # filters.SearchFilter]
