@@ -126,16 +126,16 @@ def parse_categories_task() -> list[dict[str, object]]:
     # Save categories to database
     with transaction.atomic():
         for cat in categories:
-            category = Category.add_root(name=cat["name"], parse_url=cat["href"])
+            category = Category.add_root(parsed_name=cat["name"], parse_url=cat["href"])
 
             for subcat in cat["children"]:
                 subcategory = category.add_child(
-                    name=subcat["name"], parse_url=subcat["href"]
+                    parsed_name=subcat["name"], parse_url=subcat["href"]
                 )
 
                 for subsubcat in subcat["children"]:
                     subcategory.add_child(
-                        name=subsubcat["name"], parse_url=subsubcat["href"]
+                        parsed_name=subsubcat["name"], parse_url=subsubcat["href"]
                     )
 
     return categories
@@ -330,7 +330,7 @@ def parse_category_products_task(category_id: int):
     except requests.exceptions.RequestException as e:
         logger.error(
             "Ошибка при отправке запроса на получение категории {}: {}",
-            category.name,
+            category.parsed_name,
             e,
         )
         category.is_parsing_successful = False
@@ -350,7 +350,7 @@ def parse_category_products_task(category_id: int):
     if category_is_empty:
         category.is_parsing_successful = True
         category.save()
-        return f"Категория {category.name} пуста"
+        return f"Категория {category.parsed_name} пуста"
 
     category_title = re.sub(
         r"\s+",
@@ -520,27 +520,27 @@ def parse_category_products_task(category_id: int):
             "Профнастил С8",
         ]
 
-        if category.name in size_is_h:
+        if category.parsed_name in size_is_h:
             size_code = "vysota-h"
-        elif category.name in size_is_b:
+        elif category.parsed_name in size_is_b:
             size_code = "shirina-b"
         else:
             size_code = "diametr"
 
-        if category.name in mark_is_dlina:
+        if category.parsed_name in mark_is_dlina:
             mark_code = "dlina"
-        if category.name in mark_is_shirina:
+        if category.parsed_name in mark_is_shirina:
             mark_code = "shirina-b"
-        if category.name in mark_is_stenka:
+        if category.parsed_name in mark_is_stenka:
             mark_code = "stenka"
-        if category.name in mark_is_profil:
+        if category.parsed_name in mark_is_profil:
             mark_code = "profil"
-        if category.name in mark_is_none:
+        if category.parsed_name in mark_is_none:
             mark_code = None
         else:
             mark_code = "marka-stali"
 
-        if category.name in length_is_poverkhnost:
+        if category.parsed_name in length_is_poverkhnost:
             length_code = "poverkhnost"
         else:
             length_code = "dlina"

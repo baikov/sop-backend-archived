@@ -74,3 +74,4 @@ if env("USE_DOCKER") == "yes":
 CELERY_TASK_EAGER_PROPAGATES = True
 # Your stuff...
 # ------------------------------------------------------------------------------
+CSRF_COOKIE_HTTPONLY = False

@@ -43,6 +43,9 @@ class SEOModel(models.Model):
 
 
 class Category(BaseModel, SEOModel, MP_Node):
+    parsed_name = models.CharField(
+        verbose_name="Название категории из парсинга", max_length=500, blank=True
+    )
     name = models.CharField(verbose_name="Название категории", max_length=500)
     description = models.TextField(verbose_name="Описание", max_length=1500, blank=True)
     parse_url = models.URLField(verbose_name="URL парсинга", blank=True, max_length=500)
@@ -62,7 +65,7 @@ class Category(BaseModel, SEOModel, MP_Node):
     node_order_by = ["name"]
 
     def __str__(self) -> str:
-        return self.name
+        return self.name if self.name else self.parsed_name
 
     class Meta:
         verbose_name = "Категория"

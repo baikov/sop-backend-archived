@@ -2,9 +2,10 @@ import math
 
 from django.db.models.signals import post_save, pre_save
 from django.dispatch import receiver
+from loguru import logger
 from slugify import slugify
 
-from apps.products.models import Product, ProductPropertyValue
+from apps.products.models import Category, Product, ProductPropertyValue
 
 # from apps.products.services.products import (
 #     add_product_properties,
@@ -16,6 +17,13 @@ from apps.products.models import Product, ProductPropertyValue
 def generate_slug_signal(sender, instance, **kwargs):
     if instance.slug == "":
         instance.slug = slugify(instance.name)
+
+
+@receiver(pre_save, sender=Category)
+def fill_category_name_signal(sender, instance, **kwargs):
+    logger.debug("path: {}", instance.path)
+    if instance.name == "":
+        instance.name = instance.parsed_name
 
 
 @receiver(post_save, sender=Product)
