@@ -29,7 +29,7 @@ class CategoryAdmin(TreeAdmin):
         "id",
     )
     list_editable = ("is_published",)
-    # list_filter = ["region"]
+    list_filter = ["is_published"]
     inlines = [PropertyInline]
     search_fields = ["parsed_name"]
     readonly_fields = ["updated_date", "created_date"]
