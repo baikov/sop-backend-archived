@@ -17,7 +17,6 @@ from apps.products.serializers import (
     ProductListOutputSerializer,
 )
 from apps.products.services.categories import (
-    get_category_list,
     get_category_product_list,
     get_children_categories,
     get_root_categories,
@@ -86,71 +85,6 @@ class ProductViewSet(ViewSet):
         product = get_object_or_None(qs, slug=slug)
         data = ProductDetailOutputSerializer(product).data
         return Response(data)
-
-
-class CategoryViewSet2(ViewSet):
-    lookup_field = "slug"
-
-    class Pagination(LimitOffsetPagination):
-        default_limit = 20
-
-    def get_permissions(self):
-        if self.action in ("list", "retrieve", "products", "children", "root", "menu"):
-            permission_classes = [
-                AllowAny,
-            ]
-        else:
-            permission_classes = [
-                IsAdminUser,
-            ]
-        return [permission() for permission in permission_classes]
-
-    def list(self, request):
-        categories = get_category_list()
-        data = CategoryListOutputSerializer(categories, many=True).data
-
-        return Response(data, status=status.HTTP_200_OK)
-
-    def retrieve(self, request, slug=None):
-        category = get_object_or_None(Category, slug=slug)
-        data = CategoryDetailOutputSerializer(category).data
-        return Response(data)
-
-    @action(methods=["GET"], detail=False)
-    def root(self, request):
-        root_categories = get_root_categories()
-        data = CategoryListOutputSerializer(root_categories, many=True).data
-
-        return Response(data, status=status.HTTP_200_OK)
-
-    @action(methods=["GET"], detail=True)
-    def children(self, request, slug=None):
-        children_categories = get_children_categories(slug=slug)
-        data = CategoryListOutputSerializer(children_categories, many=True).data
-
-        return Response(data, status=status.HTTP_200_OK)
-
-    @action(methods=["GET"], detail=True)
-    def products(self, request, slug=None):
-        filters_serializer = ProductFilterSerializer(data=request.query_params)
-        filters_serializer.is_valid(raise_exception=True)
-        products = get_category_product_list(
-            slug=slug, filters=filters_serializer.validated_data
-        )
-        return get_paginated_response(
-            pagination_class=self.Pagination,
-            serializer_class=ProductListOutputSerializer,
-            queryset=products,
-            request=request,
-            view=self,
-        )
-
-    @action(methods=["GET"], detail=False)
-    def menu(self, request):
-        items = get_root_categories().filter(is_published=True)
-        data = CatalogLeftMenuSerializer(items, many=True).data
-
-        return Response(data, status=status.HTTP_200_OK)
 
 
 @extend_schema(tags=["Catalog"])

@@ -27,7 +27,7 @@ def get_children_categories(slug: str) -> QuerySet:
     if category is None:
         raise NotFound(f"Категория slug={slug} не существует")
 
-    return category.get_descendants().filter(is_published=True)
+    return category.get_children().filter(is_published=True)
 
 
 def get_category_product_list(slug: str, filters: dict = None) -> QuerySet:
