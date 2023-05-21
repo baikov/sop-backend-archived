@@ -4,6 +4,7 @@ from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
 from apps.products.models import NavigationItem
+from apps.products.services.categories import get_children_categories
 from apps.utils.custom import create_breadcrumbs
 
 
@@ -127,6 +128,7 @@ class CategoryListOutputSerializer(serializers.Serializer):
     id = serializers.IntegerField(read_only=True)
     name = serializers.CharField(read_only=True)
     slug = serializers.CharField(read_only=True)
+    # products_count = serializers.IntegerField(read_only=True)
 
 
 class CategoryDetailOutputSerializer(CategoryListOutputSerializer, SEOMixin):
@@ -135,6 +137,7 @@ class CategoryDetailOutputSerializer(CategoryListOutputSerializer, SEOMixin):
     breadcrumbs = serializers.SerializerMethodField(read_only=True)
     # product_properties = CategoryPropertySerializer(many=True)
     product_properties = serializers.SerializerMethodField()
+    subcategories = serializers.SerializerMethodField()
 
     def get_breadcrumbs(self, obj):
         breadcrumbs = create_breadcrumbs(obj)
@@ -144,6 +147,10 @@ class CategoryDetailOutputSerializer(CategoryListOutputSerializer, SEOMixin):
         return CategoryPropertySerializer(
             obj.product_properties.filter(is_display_in_list=True), many=True
         ).data
+
+    def get_subcategories(self, obj):
+        children = get_children_categories(obj.slug)
+        return CategoryListOutputSerializer(children, many=True).data
 
     class Meta:
         lookup_field = "slug"
@@ -181,11 +188,12 @@ class CatalogLeftMenuSerializer(serializers.Serializer):
     name = serializers.CharField(read_only=True)
     depth = serializers.IntegerField(read_only=True)
     slug = serializers.CharField(read_only=True)
-    submenu = serializers.SerializerMethodField()
+    submenu = serializers.SerializerMethodField(read_only=True)
 
     def get_submenu(self, obj):
+        submenu = get_children_categories(obj.slug)
         return CatalogLeftMenuSerializer(
-            obj.get_children().filter(is_published=True),
+            submenu,
             many=True,
-            required=False,  # get_descendants()
+            required=False,
         ).data
