@@ -150,7 +150,7 @@ class CategoryViewSet(RetrieveModelMixin, ListModelMixin, GenericViewSet):
 
     @action(methods=["GET"], detail=False)
     def menu(self, request):
-        items = get_root_categories().filter(is_published=True)
+        items = get_root_categories().filter(is_published=True).order_by("ordering")
         data = CatalogLeftMenuSerializer(items, many=True).data
 
         return Response(data, status=status.HTTP_200_OK)
