@@ -118,6 +118,7 @@ class ProductAdmin(admin.ModelAdmin):
     list_filter = ["categories", "in_stock"]
     search_fields = ["name"]
     inlines = [ProductPropertyInline, ProductCategoriesInline]
+    readonly_fields = ["updated_date", "created_date"]
     # inlines = [ProductCategoriesInline, PropertyValueInline]
 
     # def cat_price_coefficient(self, obj):
