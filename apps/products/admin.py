@@ -31,7 +31,7 @@ class CategoryAdmin(TreeAdmin):
     list_editable = ("is_published",)
     list_filter = ["is_published"]
     inlines = [PropertyInline]
-    search_fields = ["parsed_name"]
+    search_fields = ["parsed_name", "name"]
     readonly_fields = ["updated_date", "created_date", "parse_url"]
     form = movenodeform_factory(Category)
     fieldsets = [
@@ -44,6 +44,8 @@ class CategoryAdmin(TreeAdmin):
                     "weight_coefficient",
                     "price_coefficient",
                     "is_published",
+                    "_position",
+                    "_ref_node_id",
                 ],
             },
         ),
