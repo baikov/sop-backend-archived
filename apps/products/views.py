@@ -90,7 +90,7 @@ class ProductViewSet(ViewSet):
 @extend_schema(tags=["Catalog"])
 class CategoryViewSet(RetrieveModelMixin, ListModelMixin, GenericViewSet):
     serializer_class = CategoryListOutputSerializer
-    queryset = Category.objects.all()
+    queryset = Category.objects.filter(is_published=True)
     lookup_field = "slug"
     permission_classes = [AllowAny]
 

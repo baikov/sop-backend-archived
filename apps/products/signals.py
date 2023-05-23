@@ -26,6 +26,14 @@ def fill_category_name_signal(sender, instance, **kwargs):
         instance.name = instance.parsed_name
 
 
+@receiver(post_save, sender=Category)
+def fill_child_categories_properties_signal(sender, instance, **kwargs):
+    if not instance.is_leaf() and instance.product_properties.exists():
+        for child in instance.get_children():
+            child.product_properties.clear()
+            child.product_properties.add(*instance.product_properties.all())
+
+
 @receiver(post_save, sender=Product)
 def manage_product_properties_signal(sender, instance, **kwargs):
     """

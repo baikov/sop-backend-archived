@@ -408,7 +408,7 @@ def parse_category_products_task(category_id: int):
         if product_instance:
             product_instance.in_stock = product.in_stock
             product_instance.ton_price = product.price
-            product_instance.is_published = True if product.in_stock else False
+            product_instance.is_published = True  # if product.in_stock else False
             exist_in_parsed_products.append(product_instance.id)
             # счетчик обновлений
             instances_update_count += 1
@@ -418,7 +418,7 @@ def parse_category_products_task(category_id: int):
                 parse_url=product.parse_url,
                 ton_price=product.price,
                 in_stock=product.in_stock,
-                is_published=True if product.in_stock else False,
+                is_published=True,  # if product.in_stock else False,
             )
             # счетчик созданий
             instances_create_count += 1
