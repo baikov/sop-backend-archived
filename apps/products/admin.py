@@ -32,8 +32,49 @@ class CategoryAdmin(TreeAdmin):
     list_filter = ["is_published"]
     inlines = [PropertyInline]
     search_fields = ["parsed_name"]
-    readonly_fields = ["updated_date", "created_date"]
+    readonly_fields = ["updated_date", "created_date", "parse_url"]
     form = movenodeform_factory(Category)
+    fieldsets = [
+        (
+            None,
+            {
+                "fields": [
+                    "name",
+                    "description",
+                    "weight_coefficient",
+                    "price_coefficient",
+                    "is_published",
+                ],
+            },
+        ),
+        (
+            "Парсинг",
+            {
+                "classes": ("collapse", "wide"),
+                "fields": [
+                    "parsed_name",
+                    "parse_url",
+                    "last_parsed_at",
+                    "is_parsing_successful",
+                ],
+            },
+        ),
+        (
+            "SEO",
+            {
+                "classes": ("collapse", "wide"),
+                "fields": [
+                    "slug",
+                    "seo_title",
+                    "seo_description",
+                    "h1",
+                    "is_index",
+                    "is_follow",
+                    "ordering",
+                ],
+            },
+        ),
+    ]
 
     def cat_name(self, obj):
         return obj.name if obj.name else obj.parsed_name
