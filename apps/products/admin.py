@@ -40,6 +40,7 @@ class CategoryAdmin(TreeAdmin):
             {
                 "fields": [
                     "name",
+                    "image",
                     "description",
                     "weight_coefficient",
                     "price_coefficient",

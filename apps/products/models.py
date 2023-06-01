@@ -61,6 +61,9 @@ class Category(BaseModel, SEOModel, MP_Node):
     is_parsing_successful = models.BooleanField(
         verbose_name="Парсинг успешный", default=False
     )
+    image = models.ImageField(
+        verbose_name="Изображение", upload_to="categories/", blank=True
+    )
 
     node_order_by = ["name"]
 
