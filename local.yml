@@ -3,6 +3,7 @@ version: '3'
 volumes:
   apps_local_postgres_data: {}
   apps_local_postgres_data_backups: {}
+  sop_prod_media: {}
 
 services:
   django: &django
@@ -16,6 +17,7 @@ services:
       - redis
     volumes:
       - .:/app:z
+      - sop_prod_media:/app/apps/media:z
     env_file:
       - ./.envs/.local/.django
       - ./.envs/.local/.postgres
@@ -38,21 +40,21 @@ services:
     env_file:
       - ./.envs/.local/.postgres
 
-  docs:
-    image: apps_local_docs
-    container_name: apps_local_docs
-    build:
-      context: .
-      dockerfile: ./compose/local/docs/Dockerfile
-    env_file:
-      - ./.envs/.local/.django
-    volumes:
-      - ./docs:/docs:z
-      - ./config:/app/config:z
-      - ./apps:/app/apps:z
-    ports:
-      - "9000:9000"
-    command: /start-docs
+  # docs:
+  #   image: apps_local_docs
+  #   container_name: apps_local_docs
+  #   build:
+  #     context: .
+  #     dockerfile: ./compose/local/docs/Dockerfile
+  #   env_file:
+  #     - ./.envs/.local/.django
+  #   volumes:
+  #     - ./docs:/docs:z
+  #     - ./config:/app/config:z
+  #     - ./apps:/app/apps:z
+  #   ports:
+  #     - "9000:9000"
+  #   command: /start-docs
 
   redis:
     image: redis:6
