@@ -128,6 +128,7 @@ class CategoryListOutputSerializer(serializers.Serializer):
     id = serializers.IntegerField(read_only=True)
     name = serializers.CharField(read_only=True)
     slug = serializers.CharField(read_only=True)
+    image = serializers.ImageField(read_only=True, use_url=False)
     # products_count = serializers.IntegerField(read_only=True)
 
 
@@ -189,6 +190,7 @@ class CatalogLeftMenuSerializer(serializers.Serializer):
     depth = serializers.IntegerField(read_only=True)
     slug = serializers.CharField(read_only=True)
     submenu = serializers.SerializerMethodField(read_only=True)
+    image = serializers.ImageField(read_only=True, use_url=False)
 
     def get_submenu(self, obj):
         submenu = get_children_categories(obj.slug)
