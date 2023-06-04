@@ -47,7 +47,9 @@ def get_category_product_list(slug: str, filters: dict = None) -> QuerySet:
             is_published=True, numchild=0
         )
         for leaf_category in leafs_categories:
-            qs = qs.union(leaf_category.products.filter(is_published=True))
+            qs = qs.union(
+                leaf_category.products.filter(is_published=True, in_stock=True)
+            )
     else:
         first_property = category.product_properties.exclude(
             code__in=[
@@ -80,6 +82,5 @@ def get_category_product_list(slug: str, filters: dict = None) -> QuerySet:
                     ),
                     output_field=FloatField(),
                 )
-            ).order_by("property_value")
-
+            ).order_by("-in_stock", "property_value")
     return ProductFilter(filters, qs).qs
