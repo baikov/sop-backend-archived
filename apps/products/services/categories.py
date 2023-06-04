@@ -38,39 +38,48 @@ def get_category_product_list(slug: str, filters: dict = None) -> QuerySet:
     category = get_object_or_None(Category, slug=slug)
     if category is None:
         raise NotFound(f"Категория slug={slug} не существует")
-    qs = category.products.filter(is_published=True)
 
-    first_property = category.product_properties.exclude(
-        code__in=[
-            "gost",
-            "marka-stali",
-            "poverkhnost",
-            "occvet",
-            "ves-metra",
-            "ves-shtuki",
-            "tolshina-stenki",
-        ]
-    ).first()
-    if first_property:
-        qs = qs.annotate(
-            property_value=Cast(
-                Subquery(
-                    ProductPropertyValue.objects.filter(
-                        property_id=first_property.id, product_id=OuterRef("pk")
-                    ).values(
-                        property_value=Func(
-                            F("value"),
-                            Value(","),
-                            Value("."),
-                            function="REPLACE",
-                            output_field=CharField(),
-                        )
-                    )[
-                        :1
-                    ]
-                ),
-                output_field=FloatField(),
-            )
-        ).order_by("property_value")
+    qs = category.products.filter(is_published=True)
+    # Если категория является родительской - сформируем список продуктов
+    # из дочерних категорий
+    if not category.is_leaf():
+        leafs_categories = category.get_descendants().filter(
+            is_published=True, numchild=0
+        )
+        for leaf_category in leafs_categories:
+            qs = qs.union(leaf_category.products.filter(is_published=True))
+    else:
+        first_property = category.product_properties.exclude(
+            code__in=[
+                "gost",
+                "marka-stali",
+                "poverkhnost",
+                "occvet",
+                "ves-metra",
+                "ves-shtuki",
+                "tolshina-stenki",
+            ]
+        ).first()
+        if first_property:
+            qs = qs.annotate(
+                property_value=Cast(
+                    Subquery(
+                        ProductPropertyValue.objects.filter(
+                            property_id=first_property.id, product_id=OuterRef("pk")
+                        ).values(
+                            property_value=Func(
+                                F("value"),
+                                Value(","),
+                                Value("."),
+                                function="REPLACE",
+                                output_field=CharField(),
+                            )
+                        )[
+                            :1
+                        ]
+                    ),
+                    output_field=FloatField(),
+                )
+            ).order_by("property_value")
 
     return ProductFilter(filters, qs).qs
