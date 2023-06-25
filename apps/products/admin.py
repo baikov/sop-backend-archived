@@ -1,4 +1,7 @@
+from decimal import ROUND_CEILING
+
 from django.contrib import admin
+from django.utils.html import format_html
 from treebeard.admin import TreeAdmin
 from treebeard.forms import movenodeform_factory
 
@@ -10,13 +13,14 @@ from apps.products.models import (
     ProductCategories,
     ProductProperty,
     ProductPropertyValue,
-    PropertyValue,
 )
 
 
 class PropertyInline(admin.TabularInline):
     model = ProductProperty.categories.through
     raw_id_fields = ["productproperty"]
+    verbose_name = "Свойство продукта"
+    verbose_name_plural = "Свойства продуктов"
 
 
 class CategoryAdmin(TreeAdmin):
@@ -99,35 +103,77 @@ class ProductCategoriesInline(admin.TabularInline):
     raw_id_fields = ("category",)
 
 
+class LeafPublishedCategories(admin.SimpleListFilter):
+    """Фильтр для сортировки по главной категории, только если она является
+    листом и опубликована"""
+
+    title = "По главной категории"
+    parameter_name = "category"
+
+    def lookups(self, request, model_admin):
+        return list(
+            Category.objects.filter(is_published=True, depth=3)
+            .values_list("slug", "name")
+            .order_by("path")
+        )
+
+    def queryset(self, request, qs):
+        value = self.value()
+        if value:
+            return qs.filter(categories__slug=value)
+        return qs
+
+
 class ProductAdmin(admin.ModelAdmin):
     prepopulated_fields = {"slug": ("name",)}
     list_display = (
         "name",
         # "category",
         "slug",
-        "ton_price",
-        "unit_price",
-        "meter_price",
-        # "cat_price_coefficient",
+        "custom_ton_price",
+        "parsed_price",
+        "cat_price_coefficient",
         "id",
         "in_stock",
+        "always_in_stock",
         "is_published",
         # "prop_values_list",
     )
     # exclude = ["prop_values"]
-    list_editable = ("is_published", "ton_price")
-    list_filter = ["categories", "in_stock"]
-    search_fields = ["name"]
+    list_editable = (
+        "is_published",
+        "custom_ton_price",
+        "always_in_stock",
+    )
+    list_filter = [LeafPublishedCategories, "in_stock", "always_in_stock"]
+    search_fields = ["name", "id"]
     inlines = [ProductPropertyInline, ProductCategoriesInline]
-    readonly_fields = ["updated_date", "created_date"]
+    readonly_fields = [
+        "updated_date",
+        "created_date",
+        "in_stock",
+        "ton_price",
+        "unit_price",
+        "meter_price",
+    ]
     # inlines = [ProductCategoriesInline, PropertyValueInline]
 
-    # def cat_price_coefficient(self, obj):
-    #     # sign = "+" if obj.category.price_coefficient - 1 > 0 else ""
-    #     # return f"{sign}{int(obj.category.price_coefficient * 100 - 100)}%"
-    #     return obj.category.price_coefficient
+    def cat_price_coefficient(self, obj):
+        main_category = obj.categories.filter(
+            product_categories__is_primary=True
+        ).first()
+        return main_category.price_coefficient
 
-    # cat_price_coefficient.short_description = "Коэфициент цены"
+    cat_price_coefficient.short_description = "Коэфициент"
+
+    def parsed_price(self, obj):
+        return format_html(
+            f"тн: {str(int(obj.ton_price.quantize(1, rounding=ROUND_CEILING)))}<br>"
+            f"м: {str(int(obj.meter_price.quantize(1, rounding=ROUND_CEILING)))}<br>"
+            f"шт: {str(int(obj.unit_price.quantize(1, rounding=ROUND_CEILING)))}"
+        )
+
+    parsed_price.short_description = "Автоцены"
 
     # def prop_values_list(self, obj):
     #     return ", ".join([p.value for p in obj.prop_values.all()])
@@ -135,9 +181,32 @@ class ProductAdmin(admin.ModelAdmin):
     # prop_values_list.short_description = "Значения свойств"
 
 
-@admin.register(PropertyValue)
-class PropertyValueAdmin(admin.ModelAdmin):
-    list_display = ("property", "value")
+class PropertyValuesCategoryFilter(admin.SimpleListFilter):
+    """Фильтр для сортировки по главной категории, только если она является
+    листом и опубликована"""
+
+    title = "По главной категории"
+    parameter_name = "product__categories"
+
+    def lookups(self, request, model_admin):
+        return list(
+            Category.objects.filter(is_published=True, depth=3)
+            .values_list("slug", "name")
+            .order_by("path")
+        )
+
+    def queryset(self, request, qs):
+        value = self.value()
+        if value:
+            return qs.filter(product__categories__slug=value)
+        return qs
+
+
+@admin.register(ProductPropertyValue)
+class ProductPropertyValueAdmin(admin.ModelAdmin):
+    list_display = ("product", "property", "value")
+    list_filter = ("property", PropertyValuesCategoryFilter)
+    list_editable = ("value",)
 
 
 class ProductPropertyAdmin(admin.ModelAdmin):
