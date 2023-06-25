@@ -63,11 +63,14 @@ class ProductListOutputSerializer(serializers.Serializer):
     id = serializers.IntegerField(read_only=True)
     name = serializers.CharField(read_only=True)
     slug = serializers.CharField(read_only=True)
-    unit_price_with_coef = serializers.SerializerMethodField(read_only=True)
     ton_price_with_coef = serializers.SerializerMethodField(read_only=True)
+    unit_price_with_coef = serializers.SerializerMethodField(read_only=True)
     meter_price_with_coef = serializers.SerializerMethodField(read_only=True)
     properties = serializers.SerializerMethodField(read_only=True)
-    in_stock = serializers.BooleanField(read_only=True)
+    in_stock = serializers.SerializerMethodField(read_only=True)
+
+    def get_in_stock(self, obj):
+        return obj.always_in_stock if obj.always_in_stock else obj.in_stock
 
     def get_unit_price_with_coef(self, obj):
         primary_category = obj.categories.filter(
@@ -80,14 +83,23 @@ class ProductListOutputSerializer(serializers.Serializer):
             product_categories__is_primary=True
         ).first()
         return math.ceil(obj.meter_price * primary_category.price_coefficient)
+        # if not obj.meter_weight:
+        #     return 0
+        # ton_price = obj.custom_ton_price if obj.custom_ton_price else obj.ton_price
+        # primary_category = obj.categories.filter(
+        #     product_categories__is_primary=True
+        # ).first()
+        # meter_price = math.ceil(float(ton_price) / 1_000 * obj.meter_weight)
+        # return math.ceil(meter_price * primary_category.price_coefficient)
 
     def get_ton_price_with_coef(self, obj):
         primary_category = obj.categories.filter(
             product_categories__is_primary=True
         ).first()
-        return (
-            round(obj.ton_price * primary_category.price_coefficient) // 100 + 1
-        ) * 100
+        ton_price = obj.custom_ton_price if obj.custom_ton_price else obj.ton_price
+        if not ton_price:
+            return "По запросу"
+        return (round(ton_price * primary_category.price_coefficient) // 100 + 1) * 100
 
     @extend_schema_field(ProductPropertySerializer(many=True))
     def get_properties(self, obj):

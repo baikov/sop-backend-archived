@@ -1,9 +1,7 @@
 from functools import partial
 
 from django.db import models
-from django_extensions.db.models import (
-    AutoSlugField,  # ActivatorModel, TimeStampedModel
-)
+from django_extensions.db.models import AutoSlugField
 from slugify import slugify
 from treebeard.mp_tree import MP_Node
 
@@ -104,32 +102,38 @@ class ProductProperty(BaseModel):
         ordering = ("ordering",)
 
 
-class PropertyValue(models.Model):
-    property = models.ForeignKey(
-        ProductProperty,
-        verbose_name="Свойство",
-        related_name="values",
-        on_delete=models.CASCADE,
-    )
-    value = models.CharField(verbose_name="Значение", max_length=250)
-
-    def __str__(self):
-        return f"{self.property.name}: {self.value}"
-
-
 class Product(BaseModel, SEOModel):
     # images
     name = models.CharField(verbose_name="Название продукта", max_length=500)
     description = models.TextField(verbose_name="Описание", max_length=2500, blank=True)
     parse_url = models.URLField(verbose_name="URL парсинга", blank=True, max_length=500)
     unit_price = models.DecimalField(
-        verbose_name="Цена за штуку", max_digits=20, decimal_places=2, default=0.00
+        verbose_name="Цена за штуку",
+        max_digits=20,
+        decimal_places=2,
+        default=0.00,
+        help_text="Рассчитывается автоматически, если указан вес метра и длина",
     )
     ton_price = models.DecimalField(
-        verbose_name="Цена за тонну", max_digits=20, decimal_places=2, default=0.00
+        verbose_name="Цена за тонну",
+        max_digits=20,
+        decimal_places=2,
+        default=0.00,
+        help_text="Спаршеная цена за тонну, обновляется сама",
     )
     meter_price = models.DecimalField(
-        verbose_name="Цена за метр", max_digits=20, decimal_places=2, default=0.00
+        verbose_name="Цена за метр",
+        max_digits=20,
+        decimal_places=2,
+        default=0.00,
+        help_text="Рассчитывается автоматически, если указан вес метра",
+    )
+    custom_ton_price = models.DecimalField(
+        verbose_name="Своя цена за тонну",
+        max_digits=20,
+        decimal_places=2,
+        default=0.00,
+        help_text="Приоритет отображения цены выше, чем у спаршеной",
     )
     categories = models.ManyToManyField(
         Category,
@@ -144,9 +148,14 @@ class Product(BaseModel, SEOModel):
         through="ProductPropertyValue",
     )
     in_stock = models.BooleanField(verbose_name="В наличии", default=True)
+    always_in_stock = models.BooleanField(
+        verbose_name="Всегда в наличии",
+        default=False,
+        help_text="Не зависит от парсинга, имеет высший приоритет",
+    )
 
     def __str__(self) -> str:
-        return self.name  # ({self.category if self.category else 'Без категории'})
+        return self.name
 
     class Meta:
         verbose_name = "Товар"

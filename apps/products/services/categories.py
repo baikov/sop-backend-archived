@@ -4,7 +4,7 @@ from django.db.models.query import QuerySet
 from rest_framework.exceptions import NotFound
 
 from apps.products.filters import ProductFilter
-from apps.products.models import Category, ProductPropertyValue
+from apps.products.models import Category, Product, ProductPropertyValue
 from apps.utils.custom import get_object_or_None
 
 
@@ -81,6 +81,50 @@ def get_category_product_list(slug: str, filters: dict = None) -> QuerySet:
                         ]
                     ),
                     output_field=FloatField(),
-                )
+                ),
+                # Если нужно рассчитать цены на лету
+                # meter_weight=Cast(
+                #     Subquery(
+                #         ProductPropertyValue.objects.filter(
+                #             property__code="ves-metra", product_id=OuterRef("pk")
+                #         ).values(
+                #             property_value=Func(
+                #                 F("value"),
+                #                 Value(","),
+                #                 Value("."),
+                #                 function="REPLACE",
+                #                 output_field=CharField(),
+                #             )
+                #         )[
+                #             :1
+                #         ]
+                #     ),
+                #     output_field=FloatField(),
+                # ),
+                # dlina=Cast(
+                #     Subquery(
+                #         ProductPropertyValue.objects.filter(
+                #             property__code="dlina", product_id=OuterRef("pk")
+                #         ).values(property_value=F("value"))[:1]
+                #     ),
+                #     output_field=CharField(),
+                # ),
             ).order_by("-in_stock", "property_value")
     return ProductFilter(filters, qs).qs
+
+
+def add_category_products_properties(category: Category) -> None:
+    """
+    Создает записи таблицы ProductPropertyValue (Свойство - Значение) для всех продуктов
+    категории, если она является главной для этих продуктов
+    """
+
+    products = Product.objects.filter(
+        product_categories__category=category, product_categories__is_primary=True
+    )
+    if products is None:
+        return
+    for product in products:
+        properties = category.product_properties.difference(product.properties.all())
+        for property in properties:
+            product.properties_through.create(property=property)

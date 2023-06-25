@@ -19,8 +19,9 @@ def add_product_properties(product: Product) -> None:
     Создает записи таблицы ProductPropertyValue (Свойство - Значение) для вновь
     созданного Продукта на основе принадлежности к Категории
     """
-    # TODO: проверить на корректность работы
     category = product.categories.filter(product_categories__is_primary=True).first()
+    if category is None:
+        return
     properties = category.product_properties.difference(product.properties.all())
     for property in properties:
         product.properties_through.create(property=property)
