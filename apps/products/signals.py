@@ -2,7 +2,6 @@ import math
 
 from django.db.models.signals import post_save, pre_save  # m2m_changed, post_delete,
 from django.dispatch import receiver
-from loguru import logger
 from slugify import slugify
 
 from apps.products.models import (  # ProductProperty,
@@ -103,7 +102,7 @@ def calculate_prices_when_ton_price_updated_signal(sender, instance, **kwargs):
         product=instance,
         property__code="dlina",
     ).first()
-    logger.debug("length_instance: {}", length_instance.value)
+
     if length_instance:
         try:
             length = (
