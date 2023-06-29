@@ -162,7 +162,10 @@ class ProductAdmin(admin.ModelAdmin):
         main_category = obj.categories.filter(
             product_categories__is_primary=True
         ).first()
-        return main_category.price_coefficient
+        if main_category:
+            return main_category.price_coefficient
+        else:
+            return "-"
 
     cat_price_coefficient.short_description = "Коэфициент"
 
