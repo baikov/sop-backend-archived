@@ -18,7 +18,6 @@ from apps.products.models import (
     Product,
     ProductProperty,
     ProductPropertyValue,
-    PropertyValue,
 )
 from apps.utils.custom import get_object_or_None
 
@@ -271,25 +270,26 @@ def get_unique_products(soup: BeautifulSoup) -> dict[str, ParsedProduct]:
     return parsed_products
 
 
-def parse_category_properties(soup: BeautifulSoup):
-    filter_body = soup.find("div", class_="filtr-body")
-    filters_html = filter_body.select("div.sidebarBlock.filtr")
+# def parse_category_properties(soup: BeautifulSoup):
+#     filter_body = soup.find("div", class_="filtr-body")
+#     filters_html = filter_body.select("div.sidebarBlock.filtr")
 
-    for filter in filters_html:
-        prop_name = filter.find("h4").text.strip()
-        property_instance, property_is_created = ProductProperty.objects.get_or_create(
-            name=prop_name
-        )
-        if property_is_created:
-            logger.debug("Добавлено свойство: {}", property_instance)
+#     for filter in filters_html:
+#         prop_name = filter.find("h4").text.strip()
+#         property_instance, property_is_created = (
+#           ProductProperty.objects.get_or_create(
+#             name=prop_name
+#         ))
+#         if property_is_created:
+#             logger.debug("Добавлено свойство: {}", property_instance)
 
-        for value_items in filter.find_all("li"):
-            value_instance, value_is_created = PropertyValue.objects.get_or_create(
-                property=property_instance,
-                value=value_items.div.a.text.strip(),
-            )
-            if value_is_created:
-                logger.debug("Добавлено значение: {}", value_instance)
+#         for value_items in filter.find_all("li"):
+#             value_instance, value_is_created = PropertyValue.objects.get_or_create(
+#                 property=property_instance,
+#                 value=value_items.div.a.text.strip(),
+#             )
+#             if value_is_created:
+#                 logger.debug("Добавлено значение: {}", value_instance)
 
 
 @shared_task(
