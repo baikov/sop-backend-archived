@@ -131,6 +131,8 @@ class ProductAdmin(admin.ModelAdmin):
         # "category",
         "slug",
         "custom_ton_price",
+        "custom_unit_price",
+        "custom_meter_price",
         "parsed_price",
         "cat_price_coefficient",
         "id",
@@ -143,6 +145,8 @@ class ProductAdmin(admin.ModelAdmin):
     list_editable = (
         "is_published",
         "custom_ton_price",
+        "custom_unit_price",
+        "custom_meter_price",
         "always_in_stock",
     )
     list_filter = [LeafPublishedCategories, "in_stock", "always_in_stock"]

@@ -135,6 +135,20 @@ class Product(BaseModel, SEOModel):
         default=0.00,
         help_text="Приоритет отображения цены выше, чем у спаршеной",
     )
+    custom_unit_price = models.DecimalField(
+        verbose_name="Своя цена за штуку",
+        max_digits=20,
+        decimal_places=2,
+        default=0.00,
+        help_text="Приоритет отображения цены выше, чем у спаршеной",
+    )
+    custom_meter_price = models.DecimalField(
+        verbose_name="Своя цена за метр",
+        max_digits=20,
+        decimal_places=2,
+        default=0.00,
+        help_text="Приоритет отображения цены выше, чем у спаршеной",
+    )
     categories = models.ManyToManyField(
         Category,
         verbose_name="Категории",

@@ -2,7 +2,6 @@ version: '3'
 
 volumes:
   apps_local_postgres_data: {}
-  apps_local_postgres_data_backups: {}
   sop_prod_media: {}
 
 services:
@@ -22,7 +21,7 @@ services:
       - ./.envs/.local/.django
       - ./.envs/.local/.postgres
     ports:
-      - "8000:8000"
+      - "8023:8000"
     command: /start
 
   postgres:
@@ -34,7 +33,7 @@ services:
     # hostname: db
     volumes:
       - apps_local_postgres_data:/var/lib/postgresql/data
-      - apps_local_postgres_data_backups:/backups
+      - ./backups:/backups:z
     ports:
       - "5434:5432"
     env_file:
