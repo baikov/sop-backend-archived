@@ -20,7 +20,7 @@ def get_root_categories() -> QuerySet:
     """
     Возвращает список объектов. Реализована фильтрация.
     """
-    qs = Category.get_root_nodes()
+    qs = Category.get_root_nodes().filter(is_published=True)
     return qs
 
 
